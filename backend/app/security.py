@@ -12,9 +12,10 @@ def hashear_password(password: str) -> str:
 
 
 def verificar_password(password: str, password_hash: str) -> bool:
-    return bcrypt.checkpw(
-        password.encode("utf-8"), password_hash.encode("utf-8")
-    )
+    password_bytes = password.encode("utf-8")
+    if len(password_bytes) > 72:
+        return False
+    return bcrypt.checkpw(password_bytes, password_hash.encode("utf-8"))
 
 
 def crear_token(usuario_id: int, rol: str) -> str:

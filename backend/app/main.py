@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app import database
 from app.routers import auth
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager
@@ -12,6 +13,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Ayuda Animal API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router)
 
