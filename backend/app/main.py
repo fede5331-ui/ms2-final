@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app import database
+from app.routers import auth
 
 
 @asynccontextmanager
@@ -11,6 +12,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Ayuda Animal API", lifespan=lifespan)
+
+app.include_router(auth.router)
 
 
 @app.get("/salud")
