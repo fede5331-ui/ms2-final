@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app import database
-from app.routers import auth
+from app.routers import auth, pedidos
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -22,6 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(pedidos.router)
 
 
 @app.get("/salud")
