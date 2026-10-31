@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
 from app.database import obtener_conexion
+from app.dependencies import usuario_actual
 from app.schemas.usuario import (
     TokenRespuesta,
     UsuarioLogin,
@@ -24,3 +25,7 @@ async def registro(datos: UsuarioRegistro, conexion=Depends(obtener_conexion)):
 @router.post("/login", response_model=TokenRespuesta)
 async def login(datos: UsuarioLogin, conexion=Depends(obtener_conexion)):
     return await auth_service.iniciar_sesion(conexion, datos)
+
+@router.get("/me", response_model=UsuarioRespuesta)
+async def yo(usuario=Depends(usuario_actual)):
+    return usuario
