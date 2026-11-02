@@ -38,3 +38,25 @@ async def crear(
             (usuario_id, titulo, descripcion, monto_objetivo),
         )
         return cursor.lastrowid
+
+    # ---------------------------------------------------------------
+# Cierra un pedido: cambia su estado a 'cerrado', guarda la
+# rendición y registra la fecha/hora del cierre (cerrado_en).
+#
+# La condición "AND estado = 'abierto'" es una protección extra:
+# si dos personas intentan cerrar a la vez, solo una modifica la
+# fila; la otra afecta 0 filas. Así nunca se cierra dos veces.
+#
+# Devuelve la cantidad de filas modificadas (1 = se cerró,
+# 0 = ya estaba cerrado o no existe).
+# ---------------------------------------------------------------
+async def cerrar(conexion, pedido_id: int, rendicion: str) -> int:
+    async with conexion.cursor() as cursor:
+        await cursor.execute(
+            "UPDATE pedidos "
+            "SET estado = 'cerrado', rendicion = %s, cerrado_en = NOW() "
+            "WHERE id = %s AND estado = 'abierto'",
+            (rendicion, pedido_id),
+        )
+        # rowcount = cuántas filas modificó el UPDATE
+        return cursor.rowcount

@@ -7,6 +7,8 @@ from app.dependencies import usuario_actual
 from app.schemas.pedido import PedidoCrear, PedidoRespuesta
 from app.services import pedido_service
 
+from app.schemas.cierre import CierreCrear
+
 router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 
 
@@ -32,3 +34,19 @@ async def listar_pedidos(
 @router.get("/{pedido_id}", response_model=PedidoRespuesta)
 async def ver_pedido(pedido_id: int, conexion=Depends(obtener_conexion)):
     return await pedido_service.obtener(conexion, pedido_id)
+
+# ---------------------------------------------------------------
+# POST /pedidos/{pedido_id}/cierre
+# Cierra un pedido y registra su rendición de cuentas.
+# Requiere token: Depends(usuario_actual) responde 401 si falta.
+# Solo el autor o un moderador pueden cerrarlo (lo decide el service).
+# Responde 200 con el pedido actualizado (estado, rendicion, cerrado_en).
+# ---------------------------------------------------------------
+@router.post("/{pedido_id}/cierre", response_model=PedidoRespuesta)
+async def cerrar_pedido(
+    pedido_id: int,                           # viene de la URL
+    datos: CierreCrear,                       # body JSON con la rendición, validado
+    usuario: dict = Depends(usuario_actual),  # usuario logueado, sacado del token
+    conexion=Depends(obtener_conexion),       # conexión a MySQL del pool
+):
+    return await pedido_service.cerrar(conexion, usuario, pedido_id, datos)
