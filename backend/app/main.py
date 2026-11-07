@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app import database
-from app.routers import auth, pedidos, aportes, novedades
+from app.routers import auth, pedidos, aportes, novedades, reportes
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -27,6 +27,8 @@ app.include_router(aportes.router)
 
 # Registra las rutas de novedades (/pedidos/{id}/novedades)
 app.include_router(novedades.router)
+# Registra las rutas de reportes (/reportes/...)
+app.include_router(reportes.router)
 
 
 @app.get("/salud")
