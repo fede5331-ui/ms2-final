@@ -67,3 +67,19 @@ async def editar_pedido(
     conexion=Depends(obtener_conexion),       # conexión a MySQL del pool
 ):
     return await pedido_service.actualizar(conexion, usuario, pedido_id, datos)
+
+# ---------------------------------------------------------------
+# DELETE /pedidos/{pedido_id}
+# Borra un pedido y sus novedades.
+# Requiere token: sin él responde 401 antes de llegar acá.
+# Solo el autor o un moderador, y solo si el pedido está abierto y
+# no tiene aportes (lo decide el service).
+# Responde 204 (sin contenido): se borró y no hay nada para devolver.
+# ---------------------------------------------------------------
+@router.delete("/{pedido_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def borrar_pedido(
+    pedido_id: int,                           # viene de la URL
+    usuario: dict = Depends(usuario_actual),  # usuario logueado, sacado del token
+    conexion=Depends(obtener_conexion),       # conexión a MySQL del pool
+):
+    await pedido_service.eliminar(conexion, usuario, pedido_id)

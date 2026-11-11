@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 
 from app.repositories import pedido_repo
 from app.schemas.pedido import PedidoCrear
+from pymysql.err import MySQLError
 
 
 async def crear(conexion, usuario: dict, datos: PedidoCrear) -> dict:
@@ -145,3 +146,58 @@ async def actualizar(conexion, usuario: dict, pedido_id: int, datos):
     # ya modificado (leído de nuevo, con nombre del autor, etc.).
     await pedido_repo.actualizar(conexion, pedido_id, titulo, descripcion, datos.monto_objetivo)
     return await pedido_repo.buscar_por_id(conexion, pedido_id)
+
+# ---------------------------------------------------------------
+# Borra un pedido (y sus novedades).
+#   conexion:  conexión a MySQL (la entrega el router)
+#   usuario:   dict del usuario logueado (id, nombre, email, rol)
+#   pedido_id: pedido que se quiere borrar
+# No devuelve nada: si no lanza error, se borró.
+# ---------------------------------------------------------------
+async def eliminar(conexion, usuario: dict, pedido_id: int):
+    # Regla 1: el pedido tiene que existir; si no, 404.
+    pedido = await pedido_repo.buscar_por_id(conexion, pedido_id)
+    if pedido is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El pedido no existe",
+        )
+
+    # Regla 2: solo el autor del pedido o un moderador pueden borrarlo.
+    es_autor = pedido["autor_id"] == usuario["id"]
+    es_moderador = usuario["rol"] == "moderador"
+    if not (es_autor or es_moderador):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo el autor del pedido o un moderador pueden borrarlo",
+        )
+
+    # Regla 3: un pedido cerrado no se borra, su rendición es parte
+    # del historial y de la transparencia del sistema (409 Conflict).
+    if pedido["estado"] == "cerrado":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Un pedido cerrado no se puede borrar",
+        )
+
+    # Regla 4: un pedido con aportes no se borra: los aportes son dinero
+    # registrado. La salida correcta es cerrarlo con su rendición.
+    if await pedido_repo.contar_aportes(conexion, pedido_id) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede borrar un pedido con aportes; cerralo con su rendición",
+        )
+
+    # Si pasó todas las reglas, borramos. Puede pasar que alguien registre
+    # un aporte JUSTO entre el chequeo de arriba y el DELETE: en ese caso
+    # MySQL rechaza el borrado con el error 1451 (clave foránea en uso) y
+    # el repository ya hizo ROLLBACK. Lo traducimos a un 409 entendible.
+    try:
+        await pedido_repo.eliminar(conexion, pedido_id)
+    except MySQLError as error:
+        if error.args and error.args[0] == 1451:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="No se puede borrar un pedido con aportes; cerralo con su rendición",
+            )
+        raise   # cualquier otro error de MySQL se vuelve a lanzar tal cual

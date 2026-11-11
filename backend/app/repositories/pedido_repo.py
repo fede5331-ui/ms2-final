@@ -81,3 +81,49 @@ async def actualizar(conexion, pedido_id: int, titulo: str, descripcion: str, mo
             "WHERE id = %s AND estado = 'abierto'",
             (titulo, descripcion, monto_objetivo, pedido_id),
         )
+
+        # ---------------------------------------------------------------
+# Cuenta cuántos aportes tiene un pedido.
+# El service la usa para decidir si el pedido se puede borrar:
+# con aportes NO se borra (son dinero registrado).
+# COUNT(*) siempre devuelve una fila con un solo número.
+# ---------------------------------------------------------------
+async def contar_aportes(conexion, pedido_id: int) -> int:
+    async with conexion.cursor() as cursor:
+        await cursor.execute(
+            "SELECT COUNT(*) FROM aportes WHERE pedido_id = %s",
+            (pedido_id,),
+        )
+        fila = await cursor.fetchone()   # una tupla con un solo valor: (cantidad,)
+        return fila[0]
+
+
+# ---------------------------------------------------------------
+# Borra un pedido junto con sus novedades, dentro de UNA transacción.
+#
+# Por qué hace falta: la tabla novedades tiene una clave foránea hacia
+# pedidos, y MySQL no deja borrar un pedido que todavía tiene novedades.
+# Entonces hay que borrar primero las novedades y después el pedido.
+# Si el segundo DELETE fallara, el primero se deshace con ROLLBACK y no
+# queda un pedido sin sus novedades (todo se hace, o no se hace nada).
+#
+#   begin()    -> START TRANSACTION (abre la transacción)
+#   commit()   -> confirma los dos borrados juntos
+#   rollback() -> deshace todo si algo falló
+# ---------------------------------------------------------------
+async def eliminar(conexion, pedido_id: int) -> None:
+    await conexion.begin()
+    try:
+        async with conexion.cursor() as cursor:
+            # 1) Primero las novedades (tabla "hija" que apunta al pedido)
+            await cursor.execute(
+                "DELETE FROM novedades WHERE pedido_id = %s", (pedido_id,)
+            )
+            # 2) Después el pedido
+            await cursor.execute(
+                "DELETE FROM pedidos WHERE id = %s", (pedido_id,)
+            )
+        await conexion.commit()      # todo salió bien: se confirma
+    except Exception:
+        await conexion.rollback()    # algo falló: se deshace todo
+        raise                        # y se vuelve a lanzar el error para que lo vea el service
