@@ -60,3 +60,24 @@ async def cerrar(conexion, pedido_id: int, rendicion: str) -> int:
         )
         # rowcount = cuántas filas modificó el UPDATE
         return cursor.rowcount
+
+    # ---------------------------------------------------------------
+# Edita un pedido: cambia título, descripción y monto objetivo.
+#
+# "AND estado = 'abierto'" es una protección extra: aunque el
+# service ya verificó que el pedido está abierto, si alguien lo
+# cerró justo en ese instante este UPDATE no modifica nada.
+#
+# No devuelve cuántas filas cambió, a propósito: en MySQL el rowcount
+# cuenta solo las filas que CAMBIARON de verdad. Si el usuario guarda
+# los mismos valores que ya tenía, daría 0 y parecería un error
+# cuando no lo es. El service vuelve a leer el pedido para devolverlo.
+# ---------------------------------------------------------------
+async def actualizar(conexion, pedido_id: int, titulo: str, descripcion: str, monto_objetivo: float) -> None:
+    async with conexion.cursor() as cursor:
+        await cursor.execute(
+            "UPDATE pedidos "
+            "SET titulo = %s, descripcion = %s, monto_objetivo = %s "
+            "WHERE id = %s AND estado = 'abierto'",
+            (titulo, descripcion, monto_objetivo, pedido_id),
+        )

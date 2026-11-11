@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.database import obtener_conexion
 from app.dependencies import usuario_actual
-from app.schemas.pedido import PedidoCrear, PedidoRespuesta
+from app.schemas.pedido import PedidoActualizar, PedidoCrear, PedidoRespuesta
 from app.services import pedido_service
 
 from app.schemas.cierre import CierreCrear
@@ -50,3 +50,20 @@ async def cerrar_pedido(
     conexion=Depends(obtener_conexion),       # conexión a MySQL del pool
 ):
     return await pedido_service.cerrar(conexion, usuario, pedido_id, datos)
+
+# ---------------------------------------------------------------
+# PUT /pedidos/{pedido_id}
+# Edita título, descripción y monto objetivo de un pedido.
+# Requiere token: sin él responde 401 antes de llegar acá.
+# Solo el autor o un moderador pueden editarlo, y solo mientras
+# esté abierto (lo decide el service). Responde 200 con el pedido
+# actualizado.
+# ---------------------------------------------------------------
+@router.put("/{pedido_id}", response_model=PedidoRespuesta)
+async def editar_pedido(
+    pedido_id: int,                           # viene de la URL
+    datos: PedidoActualizar,                  # body JSON con los valores nuevos, validado
+    usuario: dict = Depends(usuario_actual),  # usuario logueado, sacado del token
+    conexion=Depends(obtener_conexion),       # conexión a MySQL del pool
+):
+    return await pedido_service.actualizar(conexion, usuario, pedido_id, datos)
