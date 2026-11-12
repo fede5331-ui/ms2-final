@@ -1,16 +1,51 @@
-# React + Vite
+# Frontend - Sistema de Seguimiento de Pedidos de Ayuda Económica para la Protección Animal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web en React (Vite, JavaScript) que consume la API del backend (FastAPI + MySQL).
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js y npm
+- El backend corriendo en http://127.0.0.1:8000 (ver `backend/README.md`)
 
-## React Compiler
+## Cómo levantarlo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Entrar a la carpeta del frontend:
 
-## Expanding the ESLint configuration
+```
+cd frontend
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Instalar las dependencias:
+
+```
+npm install
+```
+
+3. Levantar el servidor de desarrollo:
+
+```
+npm run dev
+```
+
+4. Abrir http://localhost:5173 en el navegador. El backend solo acepta ese origen (CORS), así que si Vite usa otro puerto hay que avisar para agregarlo.
+
+## Estructura
+
+- `src/pages`: pantallas (Login, Registro, Pedidos, Detalle, NuevoPedido, EditarPedido, Reportes)
+- `src/components`: componentes compartidos (Menu)
+- `src/services`: llamadas a la API (auth, pedidos, aportes, novedades, reportes)
+
+## Pantallas
+
+- `/login` y `/registro`: acceso con JWT, el token se guarda en localStorage
+- `/pedidos`: listado con filtro por estado
+- `/pedidos/:id`: detalle, aportes, novedades y cierre con rendición
+- `/pedidos/nuevo` y `/pedidos/:id/editar`: alta y modificación
+- `/reportes`: resumen por pedido, pedidos sobre el promedio y descarga en Excel
+
+## Usuarios de prueba
+
+Todos con la contraseña `Prueba123`:
+
+- moderador@ayudaanimal.com (moderador)
+- lucia@ejemplo.com, martin@ejemplo.com, carla@ejemplo.com (comunidad)
