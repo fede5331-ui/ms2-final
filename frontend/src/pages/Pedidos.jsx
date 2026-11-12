@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react'
-import { obtenerPedidos } from '../services/pedidos'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { obtenerPedidos } from "../services/pedidos";
+import { Link } from "react-router-dom";
 
 function Pedidos() {
-  const [pedidos, setPedidos] = useState([])
-  const [estado, setEstado] = useState('')
-  const [error, setError] = useState('')
+  const [pedidos, setPedidos] = useState([]);
+  const [estado, setEstado] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function cargar() {
       try {
-        const datos = await obtenerPedidos(estado)
-        setPedidos(datos)
-        setError('')
+        const datos = await obtenerPedidos(estado);
+        setPedidos(datos);
+        setError("");
       } catch (err) {
-        setError(err.message)
+        setError(err.message);
       }
     }
-    cargar()
-  }, [estado])
+    cargar();
+  }, [estado]);
 
   return (
     <div>
@@ -42,17 +42,24 @@ function Pedidos() {
         <tbody>
           {pedidos.map((p) => (
             <tr key={p.id}>
-              <td><Link to={`/pedidos/${p.id}`}>{p.titulo}</Link></td>
+              <td>
+                <Link to={`/pedidos/${p.id}`}>{p.titulo}</Link>
+              </td>
               <td>{p.autor_nombre}</td>
-              <td>${p.monto_objetivo.toLocaleString('es-AR')}</td>
-              <td>${p.monto_recaudado.toLocaleString('es-AR')}</td>
-              <td>{p.estado}</td>
+              <td>${p.monto_objetivo.toLocaleString("es-AR")}</td>
+              <td>${p.monto_recaudado.toLocaleString("es-AR")}</td>
+              <td>
+                {p.estado}
+                {p.monto_recaudado >= p.monto_objetivo && (
+                  <span className="meta">Meta lograda</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default Pedidos
+export default Pedidos;

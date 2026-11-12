@@ -135,3 +135,12 @@ button {
 button:hover {
   background: var(--naranja-hover);
 }
+
+.meta {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--naranja-claro);
+  color: var(--naranja-oscuro);
+  font-weight: 600;
+}

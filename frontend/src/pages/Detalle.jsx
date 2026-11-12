@@ -1,122 +1,126 @@
-import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
-import { obtenerPedido, borrarPedido, cerrarPedido } from '../services/pedidos'
-import { obtenerAportes, crearAporte } from '../services/aportes'
-import { obtenerNovedades, crearNovedad } from '../services/novedades'
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { obtenerPedido, borrarPedido, cerrarPedido } from "../services/pedidos";
+import { obtenerAportes, crearAporte } from "../services/aportes";
+import { obtenerNovedades, crearNovedad } from "../services/novedades";
 import {
   obtenerToken,
   cerrarSesion,
   obtenerRol,
   obtenerUsuarioId,
-} from '../services/auth'
+} from "../services/auth";
 
 function Detalle() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [pedido, setPedido] = useState(null)
-  const [aportes, setAportes] = useState([])
-  const [novedades, setNovedades] = useState([])
-  const [error, setError] = useState('')
-  const [monto, setMonto] = useState('')
-  const [errorAporte, setErrorAporte] = useState('')
-  const [errorAccion, setErrorAccion] = useState('')
-  const [texto, setTexto] = useState('')
-  const [errorNovedad, setErrorNovedad] = useState('')
-  const [rendicion, setRendicion] = useState('')
-  const [errorCierre, setErrorCierre] = useState('')
-  const token = obtenerToken()
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [pedido, setPedido] = useState(null);
+  const [aportes, setAportes] = useState([]);
+  const [novedades, setNovedades] = useState([]);
+  const [error, setError] = useState("");
+  const [monto, setMonto] = useState("");
+  const [errorAporte, setErrorAporte] = useState("");
+  const [errorAccion, setErrorAccion] = useState("");
+  const [texto, setTexto] = useState("");
+  const [errorNovedad, setErrorNovedad] = useState("");
+  const [rendicion, setRendicion] = useState("");
+  const [errorCierre, setErrorCierre] = useState("");
+  const token = obtenerToken();
 
   useEffect(() => {
     async function cargar() {
       try {
-        const datosPedido = await obtenerPedido(id)
-        const datosAportes = await obtenerAportes(id)
-        const datosNovedades = await obtenerNovedades(id)
-        setPedido(datosPedido)
-        setAportes(datosAportes)
-        setNovedades(datosNovedades)
-        setError('')
+        const datosPedido = await obtenerPedido(id);
+        const datosAportes = await obtenerAportes(id);
+        const datosNovedades = await obtenerNovedades(id);
+        setPedido(datosPedido);
+        setAportes(datosAportes);
+        setNovedades(datosNovedades);
+        setError("");
       } catch (err) {
-        setError(err.message)
+        setError(err.message);
       }
     }
-    cargar()
-  }, [id])
+    cargar();
+  }, [id]);
 
   function sesionVencida(err) {
     if (err.status === 401) {
-      cerrarSesion()
-      navigate('/login')
-      return true
+      cerrarSesion();
+      navigate("/login");
+      return true;
     }
-    return false
+    return false;
   }
 
   async function manejarAporte(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (!monto || Number(monto) <= 0) {
-      setErrorAporte('El monto debe ser mayor a 0')
-      return
+      setErrorAporte("El monto debe ser mayor a 0");
+      return;
     }
     try {
-      const pedidoActualizado = await crearAporte(id, Number(monto), token)
-      setPedido(pedidoActualizado)
-      setAportes(await obtenerAportes(id))
-      setMonto('')
-      setErrorAporte('')
+      const pedidoActualizado = await crearAporte(id, Number(monto), token);
+      setPedido(pedidoActualizado);
+      setAportes(await obtenerAportes(id));
+      setMonto("");
+      setErrorAporte("");
     } catch (err) {
-      if (sesionVencida(err)) return
-      setErrorAporte(err.message)
+      if (sesionVencida(err)) return;
+      setErrorAporte(err.message);
     }
   }
 
   async function manejarBorrado() {
-    if (!window.confirm('¿Seguro que querés borrar este pedido?')) {
-      return
+    if (!window.confirm("¿Seguro que querés borrar este pedido?")) {
+      return;
     }
     try {
-      await borrarPedido(id, token)
-      navigate('/pedidos')
+      await borrarPedido(id, token);
+      navigate("/pedidos");
     } catch (err) {
-      if (sesionVencida(err)) return
-      setErrorAccion(err.message)
+      if (sesionVencida(err)) return;
+      setErrorAccion(err.message);
     }
   }
 
   async function manejarNovedad(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (texto.trim().length < 5 || texto.trim().length > 2000) {
-      setErrorNovedad('La novedad debe tener entre 5 y 2000 caracteres')
-      return
+      setErrorNovedad("La novedad debe tener entre 5 y 2000 caracteres");
+      return;
     }
     try {
-      await crearNovedad(id, texto.trim(), token)
-      setNovedades(await obtenerNovedades(id))
-      setTexto('')
-      setErrorNovedad('')
+      await crearNovedad(id, texto.trim(), token);
+      setNovedades(await obtenerNovedades(id));
+      setTexto("");
+      setErrorNovedad("");
     } catch (err) {
-      if (sesionVencida(err)) return
-      setErrorNovedad(err.message)
+      if (sesionVencida(err)) return;
+      setErrorNovedad(err.message);
     }
   }
 
   async function manejarCierre(e) {
-    e.preventDefault()
+    e.preventDefault();
     if (rendicion.trim().length < 10 || rendicion.trim().length > 5000) {
-      setErrorCierre('La rendición debe tener entre 10 y 5000 caracteres')
-      return
+      setErrorCierre("La rendición debe tener entre 10 y 5000 caracteres");
+      return;
     }
-    if (!window.confirm('Un pedido cerrado no se puede reabrir. ¿Cerrar el pedido?')) {
-      return
+    if (
+      !window.confirm(
+        "Un pedido cerrado no se puede reabrir. ¿Cerrar el pedido?",
+      )
+    ) {
+      return;
     }
     try {
-      const pedidoCerrado = await cerrarPedido(id, rendicion.trim(), token)
-      setPedido(pedidoCerrado)
-      setRendicion('')
-      setErrorCierre('')
+      const pedidoCerrado = await cerrarPedido(id, rendicion.trim(), token);
+      setPedido(pedidoCerrado);
+      setRendicion("");
+      setErrorCierre("");
     } catch (err) {
-      if (sesionVencida(err)) return
-      setErrorCierre(err.message)
+      if (sesionVencida(err)) return;
+      setErrorCierre(err.message);
     }
   }
 
@@ -126,17 +130,17 @@ function Detalle() {
         <p>{error}</p>
         <Link to="/pedidos">Volver al listado</Link>
       </div>
-    )
+    );
   }
 
   if (!pedido) {
-    return <p>Cargando...</p>
+    return <p>Cargando...</p>;
   }
 
   const puedeModificar =
     token &&
-    pedido.estado === 'abierto' &&
-    (pedido.autor_id === obtenerUsuarioId() || obtenerRol() === 'moderador')
+    pedido.estado === "abierto" &&
+    (pedido.autor_id === obtenerUsuarioId() || obtenerRol() === "moderador");
 
   return (
     <div>
@@ -144,10 +148,15 @@ function Detalle() {
       <h1>{pedido.titulo}</h1>
       <p>{pedido.descripcion}</p>
       <p>Publicado por: {pedido.autor_nombre}</p>
-      <p>Fecha: {new Date(pedido.creado_en).toLocaleDateString('es-AR')}</p>
-      <p>Objetivo: ${pedido.monto_objetivo.toLocaleString('es-AR')}</p>
-      <p>Recaudado: ${pedido.monto_recaudado.toLocaleString('es-AR')}</p>
-      <p>Estado: {pedido.estado}</p>
+      <p>Fecha: {new Date(pedido.creado_en).toLocaleDateString("es-AR")}</p>
+      <p>Objetivo: ${pedido.monto_objetivo.toLocaleString("es-AR")}</p>
+      <p>Recaudado: ${pedido.monto_recaudado.toLocaleString("es-AR")}</p>
+      <p>
+        Estado: {pedido.estado}
+        {pedido.monto_recaudado >= pedido.monto_objetivo && (
+          <span className="meta">Meta lograda</span>
+        )}
+      </p>
       {pedido.rendicion && (
         <div>
           <h2>Rendición</h2>
@@ -179,15 +188,15 @@ function Detalle() {
             {aportes.map((a) => (
               <tr key={a.id}>
                 <td>{a.usuario_nombre}</td>
-                <td>${a.monto.toLocaleString('es-AR')}</td>
-                <td>{new Date(a.creado_en).toLocaleDateString('es-AR')}</td>
+                <td>${a.monto.toLocaleString("es-AR")}</td>
+                <td>{new Date(a.creado_en).toLocaleDateString("es-AR")}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      {pedido.estado === 'abierto' &&
+      {pedido.estado === "abierto" &&
         (token ? (
           <form onSubmit={manejarAporte}>
             <input
@@ -213,7 +222,7 @@ function Detalle() {
           {novedades.map((n) => (
             <li key={n.id}>
               <strong>{n.usuario_nombre}</strong> (
-              {new Date(n.creado_en).toLocaleDateString('es-AR')}): {n.texto}
+              {new Date(n.creado_en).toLocaleDateString("es-AR")}): {n.texto}
             </li>
           ))}
         </ul>
@@ -244,7 +253,7 @@ function Detalle() {
         </form>
       )}
     </div>
-  )
+  );
 }
 
-export default Detalle
+export default Detalle;
