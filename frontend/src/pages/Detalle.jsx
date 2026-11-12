@@ -127,7 +127,7 @@ function Detalle() {
   if (error) {
     return (
       <div>
-        <p>{error}</p>
+        <p className="error">{error}</p>
         <Link to="/pedidos">Volver al listado</Link>
       </div>
     );
@@ -168,7 +168,7 @@ function Detalle() {
         <div>
           <Link to={`/pedidos/${pedido.id}/editar`}>Editar</Link>
           <button onClick={manejarBorrado}>Borrar</button>
-          {errorAccion && <p>{errorAccion}</p>}
+          {errorAccion && <p className="error">{errorAccion}</p>}
         </div>
       )}
 
@@ -206,7 +206,7 @@ function Detalle() {
               onChange={(e) => setMonto(e.target.value)}
             />
             <button type="submit">Aportar</button>
-            {errorAporte && <p>{errorAporte}</p>}
+            {errorAporte && <p className="error">{errorAporte}</p>}
           </form>
         ) : (
           <p>
@@ -236,7 +236,7 @@ function Detalle() {
             onChange={(e) => setTexto(e.target.value)}
           />
           <button type="submit">Publicar novedad</button>
-          {errorNovedad && <p>{errorNovedad}</p>}
+          {errorNovedad && <p className="error">{errorNovedad}</p>}
         </form>
       )}
 
@@ -249,7 +249,7 @@ function Detalle() {
             onChange={(e) => setRendicion(e.target.value)}
           />
           <button type="submit">Cerrar con rendición</button>
-          {errorCierre && <p>{errorCierre}</p>}
+          {errorCierre && <p className="error">{errorCierre}</p>}
         </form>
       )}
     </div>

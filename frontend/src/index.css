@@ -144,3 +144,11 @@ button:hover {
   color: var(--naranja-oscuro);
   font-weight: 600;
 }
+
+.error {
+  padding: 8px 12px;
+  border-left: 4px solid #b00020;
+  border-radius: 4px;
+  background: #fdecee;
+  color: #b00020;
+}

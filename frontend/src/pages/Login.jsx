@@ -56,7 +56,7 @@ async function manejarEnvio(e) {
         />
         <button type="submit">Entrar</button>
       </form>
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
     </div>
   )
 }

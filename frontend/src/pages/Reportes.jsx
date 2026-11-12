@@ -35,7 +35,7 @@ function Reportes() {
     <div>
       <h1>Reportes</h1>
       <button onClick={manejarDescarga}>Descargar Excel</button>
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
       <h2>Resumen por pedido</h2>
       <table>

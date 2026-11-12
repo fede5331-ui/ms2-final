@@ -65,7 +65,7 @@ function Registro() {
         />
         <button type="submit">Registrarme</button>
       </form>
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
     </div>
   )
 }

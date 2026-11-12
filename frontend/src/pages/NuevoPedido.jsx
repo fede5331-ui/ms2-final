@@ -84,7 +84,7 @@ function NuevoPedido() {
         />
         <button type="submit">Publicar</button>
       </form>
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
     </div>
   )
 }

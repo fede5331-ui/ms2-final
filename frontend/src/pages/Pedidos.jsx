@@ -28,7 +28,7 @@ function Pedidos() {
         <option value="abierto">Abiertos</option>
         <option value="cerrado">Cerrados</option>
       </select>
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
       <table>
         <thead>
           <tr>

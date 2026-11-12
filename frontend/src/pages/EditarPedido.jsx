@@ -86,7 +86,7 @@ function EditarPedido() {
   if (!cargado) {
     return (
       <div>
-        {error ? <p>{error}</p> : <p>Cargando...</p>}
+        {error ? <p className="error">{error}</p> : <p>Cargando...</p>}
         <Link to="/pedidos">Volver al listado</Link>
       </div>
     )
@@ -116,7 +116,7 @@ function EditarPedido() {
         />
         <button type="submit">Guardar cambios</button>
       </form>
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
     </div>
   )
 }
