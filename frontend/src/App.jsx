@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Pedidos from "./pages/Pedidos";
 import Registro from "./pages/Registro";
@@ -14,6 +14,7 @@ function App() {
       <Menu />
       <main>
         <Routes>
+          <Route path="/" element={<Navigate to="/pedidos" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/pedidos" element={<Pedidos />} />
           <Route path="/registro" element={<Registro />} />
